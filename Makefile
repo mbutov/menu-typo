@@ -54,7 +54,7 @@ dmenu-patch:
 		GIT_AUTHOR_DATE="$(PATCH_DATE)" GIT_COMMITTER_DATE="$(PATCH_DATE)" \
 		git -c user.name="$(PATCH_NAME)" -c user.email="$(PATCH_EMAIL)" \
 		commit -q -F ../../dmenu/commit-message.txt && \
-		git format-patch --stdout HEAD^ > ../../$(PATCH)
+		git format-patch --no-signature --stdout HEAD^ > ../../$(PATCH)
 
 dmenu: $(DMENU_DIR)/dmenu
 
