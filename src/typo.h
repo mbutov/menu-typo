@@ -287,7 +287,8 @@ typo_decode(const char **s)
 	else if (c >= 0xc0)
 		n = 1, c &= 0x1f;
 	for (i = 1; i <= n; i++) {
-		if ((p[i] & 0xc0) != 0x80) { /* broken sequence: take the byte */
+		/* broken sequence: take the first byte as it is */
+		if ((p[i] & 0xc0) != 0x80) {
 			c = p[0];
 			n = 0;
 			break;
@@ -360,14 +361,16 @@ typo_distance(const char *pattern, const char *text, int max)
 	for (j = 0; (tc = typo_next_char(&text)); j++) {
 		cur[0] = 0; /* the substring may start anywhere */
 		for (i = 1; i <= m; i++) {
-			v = prev[i - 1] + (pat[i - 1] != tc);              /* substitute */
+			/* substitute, skip in text, skip in pattern */
+			v = prev[i - 1] + (pat[i - 1] != tc);
 			if (prev[i] + 1 < v)
-				v = prev[i] + 1;                           /* skip in text */
+				v = prev[i] + 1;
 			if (cur[i - 1] + 1 < v)
-				v = cur[i - 1] + 1;                        /* skip in pattern */
+				v = cur[i - 1] + 1;
+			/* swap of two adjacent characters */
 			if (i > 1 && j > 0 && pat[i - 1] == tprev &&
 			    pat[i - 2] == tc && prev2[i - 2] + 1 < v)
-				v = prev2[i - 2] + 1;                      /* transpose */
+				v = prev2[i - 2] + 1;
 			cur[i] = v;
 		}
 		if (cur[m] < best)

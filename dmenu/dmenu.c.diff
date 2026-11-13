@@ -8,7 +8,7 @@
  
  static int (*fstrncmp)(const char *, const char *, size_t) = strncmp;
  static char *(*fstrstr)(const char *, const char *) = strstr;
-@@ -226,9 +227,29 @@
+@@ -226,9 +227,45 @@
  	die("cannot grab keyboard");
  }
  
@@ -17,6 +17,9 @@
 +	int errors;
 +	size_t order;
 +};
++
++static struct typo_item *typos;
++static size_t ntypos, typocap;
 +
 +static int
 +typo_item_cmp(const void *a, const void *b)
@@ -28,26 +31,41 @@
 +	return x->order < y->order ? -1 : x->order > y->order;
 +}
 +
++static void
++addtypo(struct item *item, int errors)
++{
++	if (ntypos == typocap) {
++		typocap = typocap ? 2 * typocap : 64;
++		if (!(typos = realloc(typos, typocap * sizeof *typos)))
++			die("cannot realloc %zu bytes:",
++			    typocap * sizeof *typos);
++	}
++	typos[ntypos].item = item;
++	typos[ntypos].errors = errors;
++	typos[ntypos].order = ntypos;
++	ntypos++;
++}
++
  static void
  match(void)
  {
-+	static struct typo_item *typos = NULL;
-+	static size_t typocap = 0;
-+	size_t ntypos = 0, t;
++	size_t t;
 +	int maxerr, err;
  	static char **tokv = NULL;
  	static int tokn = 0;
  
-@@ -246,12 +267,30 @@
+@@ -246,12 +283,26 @@
  
  	matches = lprefix = lsubstr = matchend = prefixend = substrend = NULL;
  	textsize = strlen(text) + 1;
 +	/* case as with or without -i; diacritics are always ignored */
 +	typo_ignore_case = fstrstr == cistrstr;
 +	/* a single word may also match with typos */
-+	maxerr = tokc == 1 && typo_min_len_1 ?
-+		typo_max_errors(typo_strlen(tokv[0]), typo_min_len_1,
-+		                typo_min_len_2 ? typo_min_len_2 : (unsigned int)-1) : 0;
++	ntypos = 0;
++	maxerr = 0;
++	if (tokc == 1 && typo_min_len_1)
++		maxerr = typo_max_errors(typo_strlen(tokv[0]),
++		    typo_min_len_1, typo_min_len_2 ? typo_min_len_2 : -1u);
  	for (item = items; item && item->text; item++) {
 +		/* every word, as is or ignoring case and diacritics */
  		for (i = 0; i < tokc; i++)
@@ -57,21 +75,15 @@
  				break;
 -		if (i != tokc) /* not all tokens match */
 +		if (i != tokc) { /* not all tokens match */
-+			if (maxerr && (err = typo_distance(tokv[0], item->text, maxerr)) <= maxerr) {
-+				if (ntypos == typocap && !(typos = realloc(typos,
-+				    (typocap = typocap ? 2 * typocap : 64) * sizeof *typos)))
-+					die("cannot realloc %zu bytes:", typocap * sizeof *typos);
-+				typos[ntypos].item = item;
-+				typos[ntypos].errors = err;
-+				typos[ntypos].order = ntypos;
-+				ntypos++;
-+			}
++			if (maxerr && (err = typo_distance(tokv[0],
++			    item->text, maxerr)) <= maxerr)
++				addtypo(item, err);
  			continue;
 +		}
  		/* exact matches go first, then prefixes, then substrings */
  		if (!tokc || !fstrncmp(text, item->text, textsize))
  			appenditem(item, &matches, &matchend);
-@@ -276,6 +315,10 @@
+@@ -276,6 +327,10 @@
  			matches = lsubstr;
  		matchend = substrend;
  	}

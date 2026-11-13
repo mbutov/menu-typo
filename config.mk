@@ -15,7 +15,7 @@ DMENU_GIT = https://git.suckless.org/dmenu
 # when dmenu/*.diff, dmenu/commit-message.txt or src/typo.h change.
 PATCH_NAME = Maxim Butov
 PATCH_EMAIL = mbutov@gmail.com
-PATCH_DATE = 2026-11-13T12:00:00+00:00
+PATCH_DATE = 2026-11-13T15:00:00+00:00
 
 CC ?= cc
 PKG_CONFIG ?= pkg-config

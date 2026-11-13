@@ -4,7 +4,7 @@
  to stdout and dmenu terminates.  Entering text will narrow the items to those
  matching the tokens in the input.
  .P
-+Tokens also match ignoring diacritics, so "cafe" matches "café".
++Tokens also match ignoring diacritics, so "cafe" matches "caf\('e".
 +When the input is a single word of at least 5 characters, items that contain
 +it with one error, or two errors from 8 characters, are listed after the other
 +matches, fewest errors first.
