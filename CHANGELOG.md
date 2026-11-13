@@ -12,3 +12,5 @@
   run history shared with the built-in `run` mode.
 - rofi mode `typowindow`: switch windows of i3 or sway, with typo-tolerant
   matching.
+- Separate AUR packages: `rofi-typo-git` (rofi modes) and `dmenu-typo-git`
+  (`dmenu-typo` next to dmenu); `make install-rofi`, `make install-dmenu`.

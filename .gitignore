@@ -1,6 +1,8 @@
 /build/
 /dmenu-typo-*.diff
-/packaging/aur/*.pkg.tar.*
-/packaging/aur/src/
-/packaging/aur/pkg/
-/packaging/aur/menu-typo/
+/packaging/aur/*/menu-typo/
+/packaging/aur/*/src/
+/packaging/aur/*/pkg/
+/packaging/aur/*/*.pkg.tar.*
+/packaging/aur/*/dmenu-*.tar.gz
+/.idea/

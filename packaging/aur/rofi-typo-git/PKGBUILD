@@ -1,0 +1,39 @@
+# Maintainer: Maxim Butov
+pkgname=rofi-typo-git
+_repo=menu-typo
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='rofi modes typorun and typowindow: run programs and switch windows with typo-tolerant matching'
+arch=('x86_64' 'aarch64')
+url='https://github.com/mbutov/menu-typo'
+license=('MIT')
+depends=('rofi' 'glib2' 'json-glib')
+makedepends=('git' 'cairo')
+optdepends=('dmenu: dmenu_path for the typorun program list (otherwise $PATH is scanned)'
+            'i3-wm: window manager for typowindow'
+            'sway: window manager for typowindow')
+provides=('rofi-typo')
+conflicts=('rofi-typo')
+source=("$_repo::git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+	cd "$_repo"
+	printf '%s.r%s.g%s' "$(sed -n 's/^VERSION = //p' config.mk)" \
+		"$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd "$_repo"
+	make rofi
+}
+
+check() {
+	cd "$_repo"
+	make test
+}
+
+package() {
+	cd "$_repo"
+	make DESTDIR="$pkgdir" PREFIX=/usr install-rofi
+}

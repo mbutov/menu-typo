@@ -27,6 +27,20 @@ It comes as:
 - **`src/typo.h`**, the matching itself: a single C99 header with no
   dependencies, if you want it in another menu.
 
+## Install
+
+The rofi modes and the patched dmenu are independent: install either one,
+or both.
+
+| What | Arch Linux (AUR) | From source |
+|---|---|---|
+| rofi modes `typorun`, `typowindow` | `rofi-typo-git` | `make && sudo make install-rofi` |
+| dmenu as `dmenu-typo` | `dmenu-typo-git` | `make dmenu && sudo make install-dmenu` |
+
+`sudo make install` installs the rofi modes, plus `dmenu-typo` if
+`make dmenu` was run. `PREFIX` (default `/usr/local`) and `DESTDIR` work as
+usual. The PKGBUILDs are in `packaging/aur/`.
+
 ## How matching works
 
 An *error* is one inserted, deleted or substituted character, or two
@@ -59,10 +73,13 @@ are configurable.
 Build a patched dmenu from this repository:
 
 ```sh
-make dmenu        # downloads dmenu 5.4, checks its sha256, patches, builds
-sudo make install # installs it as dmenu-typo, next to your dmenu
+make dmenu              # downloads dmenu 5.4, checks its sha256, patches, builds
+sudo make install-dmenu # installs it as dmenu-typo, next to your dmenu
 dmenu_path | dmenu-typo | ${SHELL:-/bin/sh} &
 ```
+
+`dmenu-typo` replaces only the `dmenu` binary: `dmenu_run` and
+`dmenu_path` come from the regular dmenu package, which stays installed.
 
 Or apply the patch to your own dmenu tree:
 
@@ -89,7 +106,7 @@ On Arch Linux: `pacman -S --needed rofi json-glib base-devel`.
 
 ```sh
 make
-sudo make install   # into rofi's plugin directory
+sudo make install-rofi   # into rofi's plugin directory
 ```
 
 Without installing, point rofi at the build directory with

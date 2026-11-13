@@ -5,6 +5,8 @@
 #   make dmenu           dmenu with the patch (downloads the dmenu source)
 #   make dmenu-patch     self-contained patch dmenu-typo-$(DMENU_VERSION).diff
 #   make install         rofi plugins, and dmenu-typo if it was built
+#   make install-rofi    rofi plugins only
+#   make install-dmenu   dmenu-typo only (run make dmenu first)
 #   make clean
 
 include config.mk
@@ -58,20 +60,32 @@ $(DMENU_DIR)/dmenu: $(PATCH)
 	tar -xzf $(DMENU_TAR) -C $(DMENU_DIR) --strip-components=1
 	cd $(DMENU_DIR) && patch -s -p1 < ../../$(PATCH) && $(MAKE)
 
-install: rofi
+install: install-rofi
+	if [ -x $(DMENU_DIR)/dmenu ]; then $(MAKE) install-dmenu; fi
+
+install-rofi: rofi
 	install -Dm644 $(B)/typorun.so $(DESTDIR)$(ROFI_PLUGINDIR)/typorun.so
 	install -Dm644 $(B)/typowindow.so $(DESTDIR)$(ROFI_PLUGINDIR)/typowindow.so
-	if [ -x $(DMENU_DIR)/dmenu ]; then \
-		install -Dm755 $(DMENU_DIR)/dmenu $(DESTDIR)$(PREFIX)/bin/dmenu-typo; fi
-	install -Dm644 README.md $(DESTDIR)$(PREFIX)/share/doc/menu-typo/README.md
-	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/menu-typo/LICENSE
+	install -Dm644 README.md $(DESTDIR)$(PREFIX)/share/doc/rofi-typo/README.md
+	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/rofi-typo/LICENSE
+
+# dmenu-typo next to the regular dmenu (dmenu_run and dmenu_path stay
+# theirs); dmenu's own license goes with it.
+install-dmenu:
+	test -x $(DMENU_DIR)/dmenu
+	install -Dm755 $(DMENU_DIR)/dmenu $(DESTDIR)$(PREFIX)/bin/dmenu-typo
+	install -Dm644 $(DMENU_DIR)/dmenu.1 $(DESTDIR)$(PREFIX)/share/man/man1/dmenu-typo.1
+	install -Dm644 README.md $(DESTDIR)$(PREFIX)/share/doc/dmenu-typo/README.md
+	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/dmenu-typo/LICENSE
+	install -Dm644 $(DMENU_DIR)/LICENSE $(DESTDIR)$(PREFIX)/share/licenses/dmenu-typo/LICENSE.dmenu
 
 uninstall:
 	rm -f $(DESTDIR)$(ROFI_PLUGINDIR)/typorun.so $(DESTDIR)$(ROFI_PLUGINDIR)/typowindow.so
-	rm -f $(DESTDIR)$(PREFIX)/bin/dmenu-typo
-	rm -rf $(DESTDIR)$(PREFIX)/share/doc/menu-typo $(DESTDIR)$(PREFIX)/share/licenses/menu-typo
+	rm -f $(DESTDIR)$(PREFIX)/bin/dmenu-typo $(DESTDIR)$(PREFIX)/share/man/man1/dmenu-typo.1
+	rm -rf $(DESTDIR)$(PREFIX)/share/doc/rofi-typo $(DESTDIR)$(PREFIX)/share/licenses/rofi-typo
+	rm -rf $(DESTDIR)$(PREFIX)/share/doc/dmenu-typo $(DESTDIR)$(PREFIX)/share/licenses/dmenu-typo
 
 clean:
 	rm -rf $(B) $(PATCH)
 
-.PHONY: all rofi test dmenu dmenu-patch install uninstall clean
+.PHONY: all rofi test dmenu dmenu-patch install install-rofi install-dmenu uninstall clean

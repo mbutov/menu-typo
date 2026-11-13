@@ -1,0 +1,46 @@
+# Maintainer: Maxim Butov
+pkgname=dmenu-typo-git
+_repo=menu-typo
+_dmenuver=5.4
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='dmenu with typo-tolerant matching, installed as dmenu-typo next to dmenu'
+arch=('x86_64' 'aarch64')
+url='https://github.com/mbutov/menu-typo'
+license=('MIT')
+depends=('dmenu' 'libx11' 'libxft' 'libxinerama' 'fontconfig' 'freetype2')
+makedepends=('git')
+provides=('dmenu-typo')
+conflicts=('dmenu-typo')
+source=("$_repo::git+$url.git"
+        "https://dl.suckless.org/tools/dmenu-$_dmenuver.tar.gz")
+sha256sums=('SKIP'
+            '8fbace2a0847aa80fe861066b118252dcc7b4ca0a0a8f3a93af02da8fb6cd453')
+noextract=("dmenu-$_dmenuver.tar.gz")
+
+pkgver() {
+	cd "$_repo"
+	printf '%s.r%s.g%s' "$(sed -n 's/^VERSION = //p' config.mk)" \
+		"$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+	# the Makefile would download dmenu itself; give it the verified copy
+	mkdir -p "$_repo/build"
+	cp "dmenu-$_dmenuver.tar.gz" "$_repo/build/"
+}
+
+build() {
+	cd "$_repo"
+	make dmenu
+}
+
+check() {
+	cd "$_repo"
+	make test
+}
+
+package() {
+	cd "$_repo"
+	make DESTDIR="$pkgdir" PREFIX=/usr install-dmenu
+}
