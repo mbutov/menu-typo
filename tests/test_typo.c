@@ -55,6 +55,20 @@ main(void)
 	check_distance("телграм", "Телеграм", 1);
 	check_distance("тлеграм", "Телеграм", 1);
 	check_distance("Привет", "привет мир", 0);
+	/* diacritics are ignored, in any script */
+	check_distance("елка", "Ёлка", 0);
+	check_distance("ЁЛКА", "елка", 0);
+	check_distance("ее", "её", 0);
+	check_distance("cafe", "Café", 0);
+	check_distance("uber", "Über", 0);
+	check_distance("cafe", "Cafe\xcc\x81", 0); /* decomposed: e + U+0301 */
+	check_distance("καλημερα", "Καλημέρα", 0);
+	check_distance("zurich", "Zürich", 0);
+	check_distance("zuerich", "Zürich", 1); /* ue is not u: one error */
+	if (!typo_contains("ёлк", "новогодняя елка") || typo_contains("олк", "елка")) {
+		printf("FAIL contains\n");
+		failed++;
+	}
 	/* the result is capped at max + 1 */
 	if (typo_distance("xyzzy", "firefox", 2) != 3) {
 		printf("FAIL cap\n");

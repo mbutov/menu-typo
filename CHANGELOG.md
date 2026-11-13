@@ -3,7 +3,9 @@
 ## 0.1.0 - unreleased
 
 - `src/typo.h`: restricted Damerau-Levenshtein distance from a pattern to
-  the closest substring of a text, UTF-8 aware and case insensitive.
+  the closest substring of a text, UTF-8 aware, ignoring case and
+  diacritics (`ё` as `е`, `é` as `e`); folding table generated from the
+  Unicode database by `tools/gen-fold.py`.
 - dmenu 5.4 patch: matches with typos are listed after the exact ones,
   fewest errors first; thresholds in `config.def.h`.
 - rofi mode `typorun`: run a program, with typo-tolerant matching and the

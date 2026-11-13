@@ -38,7 +38,7 @@
  	static char **tokv = NULL;
  	static int tokn = 0;
  
-@@ -246,12 +267,26 @@
+@@ -246,12 +267,28 @@
  
  	matches = lprefix = lsubstr = matchend = prefixend = substrend = NULL;
  	textsize = strlen(text) + 1;
@@ -47,8 +47,11 @@
 +		typo_max_errors(typo_strlen(tokv[0]), typo_min_len_1,
 +		                typo_min_len_2 ? typo_min_len_2 : (unsigned int)-1) : 0;
  	for (item = items; item && item->text; item++) {
++		/* every word, as is or ignoring case and diacritics */
  		for (i = 0; i < tokc; i++)
- 			if (!fstrstr(item->text, tokv[i]))
+-			if (!fstrstr(item->text, tokv[i]))
++			if (!fstrstr(item->text, tokv[i]) &&
++			    !typo_contains(tokv[i], item->text))
  				break;
 -		if (i != tokc) /* not all tokens match */
 +		if (i != tokc) { /* not all tokens match */
@@ -66,7 +69,7 @@
  		/* exact matches go first, then prefixes, then substrings */
  		if (!tokc || !fstrncmp(text, item->text, textsize))
  			appenditem(item, &matches, &matchend);
-@@ -276,6 +311,10 @@
+@@ -276,6 +313,10 @@
  			matches = lsubstr;
  		matchend = substrend;
  	}

@@ -10,6 +10,8 @@ firefxo    -> firefox        (two letters swapped)
 alacrity   -> alacritty
 thndrbird  -> thunderbird    (two errors)
 тлеграм    -> Телеграм       (UTF-8: one error per character)
+елка       -> Ёлка           (diacritics are ignored)
+cafe       -> Café
 ```
 
 Exact matches always come first, as before; matches with typos follow,
@@ -32,6 +34,14 @@ adjacent characters swapped (restricted Damerau-Levenshtein distance). The
 input is compared with any part of an entry, so `fox` and `frefox` both
 find `firefox`. Case does not matter, and UTF-8 text is compared character
 by character, so Cyrillic, Greek etc. work as well as ASCII.
+
+Diacritics do not matter either, in any script: a letter with marks
+compares as its base letter (`ё` as `е`, `é` as `e`, `ü` as `u`, `ά` as
+`α`), and combining marks are skipped. This applies to every word of the
+input, at any length and without counting as an error, so `елка` finds
+`Ёлка` and `cafe` finds `Café` as exact matches. The base letter is the one
+of the canonical Unicode decomposition, so `й` compares as `и` and `ñ` as
+`n` as well.
 
 Typos are allowed only when the input is a single word:
 
@@ -152,6 +162,10 @@ make clean
 The dmenu changes live in `dmenu/dmenu.c.diff` and
 `dmenu/config.def.h.diff`; `make dmenu-patch` combines them with
 `src/typo.h` into one patch against a clean dmenu.
+
+The diacritic folding table in `src/typo.h` (Latin, Greek and Cyrillic
+letters with marks and their base letters) is generated from the Unicode
+database: `tools/gen-fold.py` rewrites it in place.
 
 ## License
 

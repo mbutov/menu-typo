@@ -13,6 +13,9 @@ adjacent characters swapped (restricted Damerau-Levenshtein distance), so
 with any part of an item, case insensitively and character by character in
 UTF-8.
 
+Diacritics are ignored for every word of the input, so `cafe` finds `Café`
+and `елка` finds `Ёлка` even when typos are off.
+
 Unlike [fuzzymatch](../fuzzymatch/), which forgives only missing letters,
 this patch also forgives extra, wrong and swapped letters, and keeps the
 usual matching order for exact matches.
