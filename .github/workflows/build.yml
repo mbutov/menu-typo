@@ -1,0 +1,22 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Dependencies
+        run: pacman -Syu --noconfirm --needed base-devel git rofi json-glib libxft libxinerama
+      - uses: actions/checkout@v4
+      - name: Tests
+        run: make test
+      - name: rofi plugins
+        run: make
+      - name: dmenu patch and patched dmenu
+        run: make dmenu-patch dmenu
+      - name: Install into a staging directory
+        run: make DESTDIR=$PWD/stage PREFIX=/usr install && find stage -type f

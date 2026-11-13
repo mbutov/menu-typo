@@ -1,0 +1,37 @@
+# Maintainer: Maxim Butov
+pkgname=menu-typo-git
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Typo-tolerant matching for dmenu and rofi (rofi modes typorun and typowindow, patched dmenu-typo)'
+arch=('x86_64' 'aarch64')
+url='https://github.com/mbutov/menu-typo'
+license=('MIT')
+depends=('rofi' 'glib2' 'json-glib' 'libxft' 'libxinerama' 'fontconfig' 'libx11')
+makedepends=('git' 'curl')
+optdepends=('dmenu: dmenu_path for the typorun program list')
+provides=('menu-typo')
+conflicts=('menu-typo')
+source=("menu-typo::git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+	cd menu-typo
+	printf '%s.r%s.g%s' "$(sed -n 's/^VERSION = //p' config.mk)" \
+		"$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd menu-typo
+	make
+	make dmenu
+}
+
+check() {
+	cd menu-typo
+	make test
+}
+
+package() {
+	cd menu-typo
+	make DESTDIR="$pkgdir" PREFIX=/usr install
+}

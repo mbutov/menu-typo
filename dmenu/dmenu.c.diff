@@ -1,0 +1,79 @@
+--- a/dmenu.c
++++ b/dmenu.c
+@@ -53,6 +53,7 @@
+ static Clr *scheme[SchemeLast];
+ 
+ #include "config.h"
++#include "typo.h"
+ 
+ static int (*fstrncmp)(const char *, const char *, size_t) = strncmp;
+ static char *(*fstrstr)(const char *, const char *) = strstr;
+@@ -226,9 +227,29 @@
+ 	die("cannot grab keyboard");
+ }
+ 
++struct typo_item {
++	struct item *item;
++	int errors;
++	size_t order;
++};
++
++static int
++typo_item_cmp(const void *a, const void *b)
++{
++	const struct typo_item *x = a, *y = b;
++
++	if (x->errors != y->errors)
++		return x->errors - y->errors;
++	return x->order < y->order ? -1 : x->order > y->order;
++}
++
+ static void
+ match(void)
+ {
++	static struct typo_item *typos = NULL;
++	static size_t typocap = 0;
++	size_t ntypos = 0, t;
++	int maxerr, err;
+ 	static char **tokv = NULL;
+ 	static int tokn = 0;
+ 
+@@ -246,12 +267,26 @@
+ 
+ 	matches = lprefix = lsubstr = matchend = prefixend = substrend = NULL;
+ 	textsize = strlen(text) + 1;
++	/* a single word may also match with typos */
++	maxerr = tokc == 1 && typo_min_len_1 ?
++		typo_max_errors(typo_strlen(tokv[0]), typo_min_len_1,
++		                typo_min_len_2 ? typo_min_len_2 : (unsigned int)-1) : 0;
+ 	for (item = items; item && item->text; item++) {
+ 		for (i = 0; i < tokc; i++)
+ 			if (!fstrstr(item->text, tokv[i]))
+ 				break;
+-		if (i != tokc) /* not all tokens match */
++		if (i != tokc) { /* not all tokens match */
++			if (maxerr && (err = typo_distance(tokv[0], item->text, maxerr)) <= maxerr) {
++				if (ntypos == typocap && !(typos = realloc(typos,
++				    (typocap = typocap ? 2 * typocap : 64) * sizeof *typos)))
++					die("cannot realloc %zu bytes:", typocap * sizeof *typos);
++				typos[ntypos].item = item;
++				typos[ntypos].errors = err;
++				typos[ntypos].order = ntypos;
++				ntypos++;
++			}
+ 			continue;
++		}
+ 		/* exact matches go first, then prefixes, then substrings */
+ 		if (!tokc || !fstrncmp(text, item->text, textsize))
+ 			appenditem(item, &matches, &matchend);
+@@ -276,6 +311,10 @@
+ 			matches = lsubstr;
+ 		matchend = substrend;
+ 	}
++	/* then matches with typos, fewest errors first */
++	qsort(typos, ntypos, sizeof *typos, typo_item_cmp);
++	for (t = 0; t < ntypos; t++)
++		appenditem(typos[t].item, &matches, &matchend);
+ 	curr = sel = matches;
+ 	calcoffsets();
+ }

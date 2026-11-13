@@ -1,0 +1,12 @@
+# Changelog
+
+## 0.1.0 - unreleased
+
+- `src/typo.h`: restricted Damerau-Levenshtein distance from a pattern to
+  the closest substring of a text, UTF-8 aware and case insensitive.
+- dmenu 5.4 patch: matches with typos are listed after the exact ones,
+  fewest errors first; thresholds in `config.def.h`.
+- rofi mode `typorun`: run a program, with typo-tolerant matching and the
+  run history shared with the built-in `run` mode.
+- rofi mode `typowindow`: switch windows of i3 or sway, with typo-tolerant
+  matching.
