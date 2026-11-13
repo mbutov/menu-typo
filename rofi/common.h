@@ -4,6 +4,9 @@
  * every word of the input ignoring case and diacritics ("елка" finds "Ёлка",
  * "cafe" finds "Café"), or, for a single word, with typos (src/typo.h).
  *
+ * Case is ignored unless rofi runs with -case-sensitive; diacritics are
+ * always ignored.
+ *
  * Options, read from the rofi command line:
  *   -typo-min-len-1 N   input length from which 1 error is allowed (5)
  *   -typo-min-len-2 N   input length from which 2 errors are allowed (8)
@@ -38,6 +41,7 @@ typo_matcher_init(TypoMatcher *m)
 	m->min_len_2 = TYPO_MIN_LEN_2;
 	find_arg_uint("-typo-min-len-1", &m->min_len_1);
 	find_arg_uint("-typo-min-len-2", &m->min_len_2);
+	typo_ignore_case = find_arg("-case-sensitive") < 0;
 }
 
 static inline void

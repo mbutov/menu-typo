@@ -9,8 +9,9 @@
  * deleted or substituted character, or two adjacent characters swapped.
  *
  * Both strings are UTF-8 and are compared character by character, case
- * insensitively (towlower(), so case folding beyond ASCII needs a UTF-8
- * LC_CTYPE locale, which dmenu and rofi set up) and ignoring diacritics: a
+ * insensitively unless typo_ignore_case is 0 (towlower(), so case folding
+ * beyond ASCII needs a UTF-8 LC_CTYPE locale, which dmenu and rofi set up)
+ * and always ignoring diacritics: a
  * letter with marks compares as its base letter (e-diaeresis as e, e-acute
  * as e, alpha-tonos as alpha), and combining marks are skipped. Invalid
  * bytes compare as themselves.
@@ -30,6 +31,9 @@
 
 /* Longest pattern, in characters; longer ones never match with errors. */
 #define TYPO_PATTERN_MAX 64
+
+/* Whether to compare case insensitively (1, default) or not (0). */
+static int typo_ignore_case = 1;
 
 /* Default pattern lengths from which 1 and 2 errors are allowed. */
 #define TYPO_MIN_LEN_1 5
@@ -295,8 +299,8 @@ typo_decode(const char **s)
 }
 
 /*
- * Next character to compare at *s: without diacritics, lowercased; combining
- * marks are skipped. Returns 0 at the end of the string.
+ * Next character to compare at *s: without diacritics, lowercased if
+ * typo_ignore_case; combining marks are skipped. Returns 0 at the end.
  */
 static inline uint32_t
 typo_next_char(const char **s)
@@ -308,7 +312,8 @@ typo_next_char(const char **s)
 			return 0;
 		c = typo_decode(s);
 	} while (typo_is_mark(c));
-	return (uint32_t)towlower((wint_t)typo_fold(c));
+	c = typo_fold(c);
+	return typo_ignore_case ? (uint32_t)towlower((wint_t)c) : c;
 }
 
 /* Number of characters in a UTF-8 string. */
@@ -376,7 +381,7 @@ typo_distance(const char *pattern, const char *text, int max)
 	return best > max ? max + 1 : best;
 }
 
-/* Whether text contains pattern, ignoring case and diacritics, no errors. */
+/* Whether text contains pattern, ignoring diacritics (and case), no errors. */
 static inline int
 typo_contains(const char *pattern, const char *text)
 {

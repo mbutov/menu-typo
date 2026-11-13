@@ -81,15 +81,15 @@ dmenu_path | dmenu-typo | ${SHELL:-/bin/sh} &
 `dmenu-typo` replaces only the `dmenu` binary: `dmenu_run` and
 `dmenu_path` come from the regular dmenu package, which stays installed.
 
-Or apply the patch to your own dmenu tree:
+Or apply the patch, `dmenu/dmenu-typo-5.4.diff`, to your own dmenu tree:
 
 ```sh
-make dmenu-patch  # writes dmenu-typo-5.4.diff
-cd ~/src/dmenu && patch -p1 < /path/to/dmenu-typo-5.4.diff
+cd ~/src/dmenu
+git am /path/to/dmenu-typo-5.4.diff       # or: patch -p1 < /path/to/...
 ```
 
-The patch adds `typo.h` and two settings to `config.def.h` (copy them to
-your `config.h`):
+The patch adds `typo.h`, a paragraph to `dmenu.1` and two settings to
+`config.def.h` (copy them to your `config.h`):
 
 ```c
 static unsigned int typo_min_len_1 = 5; /* 1 error from this input length */
@@ -97,7 +97,8 @@ static unsigned int typo_min_len_2 = 8; /* 2 errors; 0 disables a level */
 ```
 
 Matches with typos are appended after the exact, prefix and substring
-matches, ordered by the number of errors.
+matches, ordered by the number of errors. Case follows `-i`, as usual;
+diacritics are always ignored.
 
 ## rofi
 
@@ -146,6 +147,10 @@ rofi -modi typowindow -show typowindow -sort -sorting-method fzf
 
 ### Options of both modes
 
+Case is ignored unless rofi runs with `-case-sensitive`; diacritics are
+always ignored.
+
+
 | Option | Default | Meaning |
 |---|---|---|
 | `-typo-min-len-1 N` | 5 | input length from which 1 error is allowed; 0 disables typos |
@@ -172,13 +177,18 @@ bindsym $mod+x exec --no-startup-id rofi -modi typowindow -show typowindow -sort
 make test         # unit tests of src/typo.h
 make              # rofi plugins
 make dmenu        # patched dmenu
-make dmenu-patch  # the self-contained dmenu patch
+make dmenu-patch  # regenerate dmenu/dmenu-typo-5.4.diff
 make clean
 ```
 
-The dmenu changes live in `dmenu/dmenu.c.diff` and
-`dmenu/config.def.h.diff`; `make dmenu-patch` combines them with
-`src/typo.h` into one patch against a clean dmenu.
+The dmenu changes live in `dmenu/dmenu.c.diff`, `dmenu/config.def.h.diff`
+and `dmenu/dmenu.1.diff`. `make dmenu-patch` clones dmenu, applies them on
+top of the release tag together with `src/typo.h`, commits with
+`dmenu/commit-message.txt` and writes the commit as
+`dmenu/dmenu-typo-5.4.diff` (`git format-patch`). That file is kept in the
+repository and published on the suckless wiki; it is reproducible
+(`PATCH_NAME`, `PATCH_EMAIL`, `PATCH_DATE` in `config.mk`), and CI checks
+that it is up to date. Bump `PATCH_DATE` when the patch changes.
 
 The diacritic folding table in `src/typo.h` (Latin, Greek and Cyrillic
 letters with marks and their base letters) is generated from the Unicode

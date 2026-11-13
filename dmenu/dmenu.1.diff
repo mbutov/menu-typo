@@ -1,0 +1,17 @@
+--- a/dmenu.1
++++ b/dmenu.1
+@@ -31,6 +31,14 @@
+ to stdout and dmenu terminates.  Entering text will narrow the items to those
+ matching the tokens in the input.
+ .P
++Tokens also match ignoring diacritics, so "cafe" matches "café".
++When the input is a single word of at least 5 characters, items that contain
++it with one error, or two errors from 8 characters, are listed after the other
++matches, fewest errors first.
++An error is an inserted, deleted or substituted character, or two adjacent
++characters swapped.
++These lengths are set in config.h.
++.P
+ .B dmenu_run
+ is a script used by
+ .IR dwm (1)

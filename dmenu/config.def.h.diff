@@ -1,15 +1,16 @@
 --- a/config.def.h
 +++ b/config.def.h
-@@ -21,3 +21,13 @@
+@@ -21,3 +21,14 @@
   * for example: " /?\"&[]"
   */
  static const char worddelimiters[] = " ";
 +
 +/*
 + * Typo-tolerant matching. Every word of the input also matches ignoring
-+ * case and diacritics ("cafe" finds "Café", "елка" finds "Ёлка"). When the
-+ * input is a single word, items that contain it with up to 1 or 2 errors
-+ * (Damerau-Levenshtein) are listed after the exact matches. The input length (in characters) from which 1 and 2
++ * diacritics: "cafe" finds "café", "елка" finds "ёлка" (case is ignored
++ * with -i, as usual). When the input is a single word, items that contain
++ * it with up to 1 or 2 errors (Damerau-Levenshtein) are listed after the
++ * exact matches. The input length, in characters, from which 1 and 2
 + * errors are allowed; 0 disables.
 + */
 +static unsigned int typo_min_len_1 = 5;

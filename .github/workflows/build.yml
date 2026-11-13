@@ -16,7 +16,12 @@ jobs:
         run: make test
       - name: rofi plugins
         run: make
-      - name: dmenu patch and patched dmenu
-        run: make dmenu-patch dmenu
+      - name: dmenu patch is up to date
+        run: |
+          git config --global --add safe.directory "$PWD"
+          make dmenu-patch
+          git diff --exit-code dmenu/
+      - name: Patched dmenu
+        run: make dmenu
       - name: Install into a staging directory
         run: make DESTDIR=$PWD/stage PREFIX=/usr install && find stage -type f

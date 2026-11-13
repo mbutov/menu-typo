@@ -69,6 +69,12 @@ main(void)
 		printf("FAIL contains\n");
 		failed++;
 	}
+	/* case sensitive mode: diacritics are still ignored */
+	typo_ignore_case = 0;
+	check_distance("Cafe", "Café", 0);
+	check_distance("cafe", "Café", 1);
+	check_distance("Елка", "Ёлка", 0);
+	typo_ignore_case = 1;
 	/* the result is capped at max + 1 */
 	if (typo_distance("xyzzy", "firefox", 2) != 3) {
 		printf("FAIL cap\n");

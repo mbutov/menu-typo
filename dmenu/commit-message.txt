@@ -1,0 +1,13 @@
+typo: typo-tolerant matching
+
+Every word of the input also matches ignoring diacritics, so "cafe" finds
+"café" and "елка" finds "ёлка"; case follows -i as usual. When the input
+is a single word, items that contain it with up to 1 or 2 errors
+(restricted Damerau-Levenshtein distance: an inserted, deleted or
+substituted character, or two adjacent characters swapped) are listed
+after the other matches, fewest errors first: "frefox" finds "firefox".
+
+1 error is allowed from 5 input characters, 2 from 8: typo_min_len_1 and
+typo_min_len_2 in config.h. Matching is UTF-8 aware.
+
+Upstream: https://github.com/mbutov/menu-typo
