@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - unreleased
+## 0.1.0 - 2026-11-15
 
 - `src/typo.h`: restricted Damerau-Levenshtein distance from a pattern to
   the closest substring of a text, UTF-8 aware, ignoring case and

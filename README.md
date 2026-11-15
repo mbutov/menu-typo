@@ -70,6 +70,9 @@ are configurable.
 
 ## dmenu
 
+The patch is also published on the suckless wiki:
+<https://tools.suckless.org/dmenu/patches/typo/>
+
 Build a patched dmenu from this repository:
 
 ```sh
